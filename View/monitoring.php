@@ -1,6 +1,42 @@
 <?php
+
+global $conn;
 session_start();
 require_once "db_connect.php";
+
+// Statistik: antal incidents pr. dag (seneste 7 dage)
+$stmt_chart = $conn->query("
+  SELECT DATE(created_at) AS dato, COUNT(*) AS antal
+  FROM incidents
+  WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+  GROUP BY DATE(created_at)
+  ORDER BY dato ASC
+");
+$chartData = $stmt_chart->fetchAll(PDO::FETCH_ASSOC);
+
+// Lav arrays til JavaScript
+$labels = [];
+$values = [];
+foreach ($chartData as $row) {
+    $labels[] = date("d.m", strtotime($row['dato']));
+    $values[] = $row['antal'];
+}
+// Statistik: gennemsnitlig threat score pr. dag (seneste 7 dage)
+$stmt_score = $conn->query("
+  SELECT DATE(last_seen) AS dato, ROUND(AVG(threat_score), 1) AS avg_score
+  FROM indicators
+  WHERE last_seen >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+  GROUP BY DATE(last_seen)
+  ORDER BY dato ASC
+");
+$scoreData = $stmt_score->fetchAll(PDO::FETCH_ASSOC);
+
+$scoreLabels = [];
+$avgScores = [];
+foreach ($scoreData as $row) {
+    $scoreLabels[] = date("d.m", strtotime($row['dato']));
+    $avgScores[] = $row['avg_score'];
+}
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
@@ -36,7 +72,7 @@ try {
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="index.php">🛡️ CyberMonitor</a>
+        <a class="navbar-brand" href="Index.php">🛡️ CyberMonitor</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -111,8 +147,100 @@ try {
         </div>
     </div>
 
-    <div class="text-center mt-5">
-        <a href="dashboard.php" class="btn btn-outline-light">⬅️ Tilbage til Dashboard</a>
+    <div class="card p-3 mb-4">
+        <h5>📊 Incident-aktivitet (seneste 7 dage)</h5>
+        <canvas id="incidentChart" height="100"></canvas>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('incidentChart');
+
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: <?= json_encode($labels) ?>,
+                datasets: [{
+                    label: 'Antal hændelser',
+                    data: <?= json_encode($values) ?>,
+                    borderColor: 'rgba(75,192,192,1)',
+                    backgroundColor: 'rgba(75,192,192,0.2)',
+                    tension: 0.3,
+                    borderWidth: 2,
+                    fill: true,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#0d6efd'
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: { labels: { color: '#fff' } }
+                },
+                scales: {
+                    x: { ticks: { color: '#fff' }, grid: { color: '#333' } },
+                    y: { ticks: { color: '#fff' }, grid: { color: '#333' } }
+                }
+            }
+        });
+    </script>
+    <div class="card p-3 mb-4">
+        <h5>🔥 Gennemsnitlig trussels-score (seneste 7 dage)</h5>
+        <canvas id="threatChart" height="100"></canvas>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // === Incident graf ===
+        const ctx1 = document.getElementById('incidentChart');
+        new Chart(ctx1, {
+            type: 'line',
+            data: {
+                labels: <?= json_encode($labels) ?>,
+                datasets: [{
+                    label: 'Antal hændelser',
+                    data: <?= json_encode($values) ?>,
+                    borderColor: 'rgba(75,192,192,1)',
+                    backgroundColor: 'rgba(75,192,192,0.2)',
+                    tension: 0.3,
+                    borderWidth: 2,
+                    fill: true,
+                    pointRadius: 4,
+                    pointBackgroundColor: '#0d6efd'
+                }]
+            },
+            options: {
+                plugins: { legend: { labels: { color: '#fff' } } },
+                scales: {
+                    x: { ticks: { color: '#fff' }, grid: { color: '#333' } },
+                    y: { ticks: { color: '#fff' }, grid: { color: '#333' } }
+                }
+            }
+        });
+
+        // === Threat score graf ===
+        const ctx2 = document.getElementById('threatChart');
+        new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: <?= json_encode($scoreLabels) ?>,
+                datasets: [{
+                    label: 'Gennemsnitlig threat score',
+                    data: <?= json_encode($avgScores) ?>,
+                    backgroundColor: 'rgba(255,99,132,0.5)',
+                    borderColor: 'rgba(255,99,132,1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                plugins: { legend: { labels: { color: '#fff' } } },
+                scales: {
+                    x: { ticks: { color: '#fff' }, grid: { color: '#333' } },
+                    y: { ticks: { color: '#fff' }, grid: { color: '#333' }, beginAtZero: true, max: 100 }
+                }
+            }
+        });
+    </script>
+
+    <div class="text-center mt-5 text-muted text-white">
+        <small>Sidst opdateret: <?= date("d.m.Y H:i") ?></small>
     </div>
 </div>
 </body>
