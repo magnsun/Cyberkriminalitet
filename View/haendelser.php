@@ -42,6 +42,7 @@ try {
                 <li class="nav-item"><a class="nav-link" href="dashboard.php">Dashboard</a></li>
                 <li class="nav-item"><a class="nav-link" href="monitoring.php">Overvågning</a></li>
                 <li class="nav-item"><a class="nav-link active" href="haendelser.php">Hændelser</a></li>
+                <li class="nav-item"><a class="nav-link" href="tiltag.php">Tiltag</a></li>
             </ul>
             <div class="d-flex align-items-center">
                 <span class="me-3">👤 <?= htmlspecialchars($_SESSION['username']) ?></span>
