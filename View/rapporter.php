@@ -42,55 +42,47 @@ $tiltag = $conn->query("
     LIMIT 10
 ")->fetchAll(PDO::FETCH_ASSOC);
 
-// Dato-filter
 $from = $_GET['from'] ?? null;
 $to = $_GET['to'] ?? null;
 
-$where = "";
-$params = [];
+$where_inc = "";
+$where_alerts = "";
+$where_tiltag = "";
 
+$params_inc = [];
+$params_alerts = [];
+$params_tiltag = [];
+
+// INCIDENTS
 if ($from) {
-    $where .= " AND created_at >= ? ";
-    $params[] = $from . " 00:00:00";
+    $where_inc .= " AND incidents.created_at >= ? ";
+    $params_inc[] = $from . " 00:00:00";
 }
-
 if ($to) {
-    $where .= " AND created_at <= ? ";
-    $params[] = $to . " 23:59:59";
+    $where_inc .= " AND incidents.created_at <= ? ";
+    $params_inc[] = $to . " 23:59:59";
 }
 
-$stmt = $conn->prepare("
-    SELECT id, title, severity, status, created_at
-    FROM incidents
-    WHERE 1=1 $where
-    ORDER BY created_at DESC
-    LIMIT 50
-");
-$stmt->execute($params);
-$incidents = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// ALERTS
+if ($from) {
+    $where_alerts .= " AND a.created_at >= ? ";
+    $params_alerts[] = $from . " 00:00:00";
+}
+if ($to) {
+    $where_alerts .= " AND a.created_at <= ? ";
+    $params_alerts[] = $to . " 23:59:59";
+}
 
-$stmt = $conn->prepare("
-    SELECT a.*, i.title AS incident_title
-    FROM alerts a
-    LEFT JOIN incidents i ON a.incident_id = i.id
-    WHERE 1=1 $where
-    ORDER BY a.created_at DESC
-    LIMIT 50
-");
-$stmt->execute($params);
-$alerts = $stmt->fetchAll(PDO::FETCH_ASSOC);
+// TILTAG (audit_logs)
+if ($from) {
+    $where_tiltag .= " AND a.created_at >= ? ";
+    $params_tiltag[] = $from . " 00:00:00";
+}
+if ($to) {
+    $where_tiltag .= " AND a.created_at <= ? ";
+    $params_tiltag[] = $to . " 23:59:59";
+}
 
-$stmt = $conn->prepare("
-    SELECT a.*, u.username, i.title AS incident_title
-    FROM audit_logs a
-    LEFT JOIN users u ON a.user_id = u.id
-    LEFT JOIN incidents i ON a.record_id = i.id
-    WHERE a.action = 'NOTE' $where
-    ORDER BY a.created_at DESC
-    LIMIT 50
-");
-$stmt->execute($params);
-$tiltag = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 ?>
 <!DOCTYPE html>
@@ -266,4 +258,3 @@ $tiltag = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </div>
 </body>
 </html>
-
