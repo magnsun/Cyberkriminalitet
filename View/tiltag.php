@@ -69,6 +69,7 @@ $logs = $stmt_logs->fetchAll(PDO::FETCH_ASSOC);
                 <li class="nav-item"><a class="nav-link" href="monitoring.php">Overvågning</a></li>
                 <li class="nav-item"><a class="nav-link" href="haendelser.php">Hændelser</a></li>
                 <li class="nav-item"><a class="nav-link active" href="tiltag.php">Tiltag</a></li>
+                <li class="nav-item"><a class="nav-link" href="rapporter.php">Rapporter</a></li>
             </ul>
             <div class="d-flex align-items-center">
                 <span class="me-3">👤 <?= htmlspecialchars($_SESSION['username']) ?></span>
