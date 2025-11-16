@@ -115,7 +115,6 @@ if ($to) {
                 <li class="nav-item"><a class="nav-link" href="haendelser.php">Hændelser</a></li>
                 <li class="nav-item"><a class="nav-link" href="tiltag.php">Tiltag</a></li>
                 <li class="nav-item"><a class="nav-link active" href="rapporter.php">Rapporter</a></li>
-                <li class="nav-item"><a class="nav-link" href="eksport.php">Rapporter</a></li>
             </ul>
             <span class="me-3">👤 <?= $_SESSION['username'] ?></span>
             <a href="logout.php" class="btn btn-outline-light btn-sm">Log ud</a>

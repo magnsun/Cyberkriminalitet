@@ -55,7 +55,7 @@ try {
                 <li class="nav-item"><a class="nav-link" href="haendelser.php">Hændelser</a>
                 <li class="nav-item"><a class="nav-link" href="tiltag.php">Tiltag</a></li>
                 <li class="nav-item"><a class="nav-link" href="rapporter.php">Rapporter</a></li>
-                <li class="nav-item"><a class="nav-link" href="eksport.php">Rapporter</a></li>
+                <li class="nav-item"><a class="nav-link" href="brugeradministration.php">brugeradministration</a> </li>
             </ul>
             <div class="d-flex align-items-center">
                 <span class="me-3">👤 <?= htmlspecialchars($_SESSION['username']) ?></span>
