@@ -44,7 +44,7 @@ try {
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="Index.php">🛡️ CyberMonitor</a>
+        <a class="navbar-brand" href="index.php">🛡️ CyberMonitor</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -55,6 +55,7 @@ try {
                 <li class="nav-item"><a class="nav-link" href="haendelser.php">Hændelser</a>
                 <li class="nav-item"><a class="nav-link" href="tiltag.php">Tiltag</a></li>
                 <li class="nav-item"><a class="nav-link" href="rapporter.php">Rapporter</a></li>
+                <li class="nav-item"><a class="nav-link" href="eksport.php">Rapporter</a></li>
             </ul>
             <div class="d-flex align-items-center">
                 <span class="me-3">👤 <?= htmlspecialchars($_SESSION['username']) ?></span>

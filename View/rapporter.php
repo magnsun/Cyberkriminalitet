@@ -115,6 +115,7 @@ if ($to) {
                 <li class="nav-item"><a class="nav-link" href="haendelser.php">Hændelser</a></li>
                 <li class="nav-item"><a class="nav-link" href="tiltag.php">Tiltag</a></li>
                 <li class="nav-item"><a class="nav-link active" href="rapporter.php">Rapporter</a></li>
+                <li class="nav-item"><a class="nav-link" href="eksport.php">Rapporter</a></li>
             </ul>
             <span class="me-3">👤 <?= $_SESSION['username'] ?></span>
             <a href="logout.php" class="btn btn-outline-light btn-sm">Log ud</a>
@@ -250,6 +251,37 @@ if ($to) {
             <?php endforeach; ?>
             </tbody>
         </table>
+    </div>
+    <div class="card p-3 no-print mb-4">
+        <h5>📤 Eksportér Data</h5>
+        <form method="GET" action="eksport.php" class="row g-3 mt-2">
+
+            <div class="col-md-4">
+                <label class="form-label">Fra dato</label>
+                <input type="date" name="from" class="form-control" value="<?= htmlspecialchars($from) ?>">
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Til dato</label>
+                <input type="date" name="to" class="form-control" value="<?= htmlspecialchars($to) ?>">
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Datatype</label>
+                <select name="type" class="form-select" required>
+                    <option value="" disabled selected>Vælg…</option>
+                    <option value="incidents">Incidents</option>
+                    <option value="alerts">Alerts</option>
+                    <option value="indicators">Indicators</option>
+                    <option value="tiltag">Tiltag</option>
+                </select>
+            </div>
+
+            <div class="col-12">
+                <button class="btn btn-success w-100">Eksportér som CSV</button>
+            </div>
+
+        </form>
     </div>
 
     <div class="text-center mt-5 text-muted text-white">
