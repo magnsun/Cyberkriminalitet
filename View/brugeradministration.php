@@ -8,6 +8,16 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
+function generate_uuid() {
+    $data = random_bytes(16);
+
+    // Version 4 UUID
+    $data[6] = chr((ord($data[6]) & 0x0f) | 0x40);
+    $data[8] = chr((ord($data[8]) & 0x3f) | 0x80);
+
+    return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
+}
+
 // Hent alle brugere
 $stmt = $conn->prepare("SELECT id, username, display_name, email, role, created_at 
                         FROM users ORDER BY created_at DESC");
@@ -16,7 +26,7 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Tilføj bruger
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_user'])) {
-    $id = uuid_create(UUID_TYPE_RANDOM);
+    $id = generate_uuid();
     $username = $_POST['username'];
     $display_name = $_POST['display_name'];
     $email = $_POST['email'];
@@ -64,7 +74,7 @@ if (isset($_GET['delete'])) {
 
 <nav class="navbar navbar-expand-lg navbar-dark mb-4">
     <div class="container-fluid">
-        <a class="navbar-brand" href="Index.php">🛡️ CyberMonitor</a>
+        <a class="navbar-brand" href="index.php">🛡️ CyberMonitor</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
