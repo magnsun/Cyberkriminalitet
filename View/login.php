@@ -10,7 +10,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $password = trim($_POST["password"]);
 
     // Tjek bruger i DB
-    $stmt = $conn->prepare("SELECT id, username, password_hash FROM users WHERE username = :username LIMIT 1");
+    $stmt = $conn->prepare("SELECT id, username, role, password_hash FROM users WHERE username = :username LIMIT 1");
     $stmt->bindParam(":username", $username);
     $stmt->execute();
 
@@ -19,6 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if (password_verify($password, $user["password_hash"])) {
             $_SESSION["user_id"] = $user["id"];
             $_SESSION["username"] = $user["username"];
+            $_SESSION["role"] = $user["role"];
             header("Location: dashboard.php");
             exit;
         } else {

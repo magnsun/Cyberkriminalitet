@@ -3,8 +3,8 @@ global $conn;
 session_start();
 require_once "db_connect.php";
 
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
+if (!isset($_SESSION["user_id"]) || $_SESSION["role"] !== "admin") {
+    header("Location: dashboard.php?error=access_denied");
     exit;
 }
 
