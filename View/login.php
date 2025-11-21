@@ -1,7 +1,8 @@
 <?php
 global $conn;
-session_start();
-require_once "db_connect.php";
+
+define('BASE_PATH', dirname(__DIR__));
+require_once BASE_PATH . '/backend/db_connect.php';
 
 $error = "";
 
@@ -20,7 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $_SESSION["user_id"] = $user["id"];
             $_SESSION["username"] = $user["username"];
             $_SESSION["role"] = $user["role"];
-            header("Location: dashboard.php");
+            header("Location: ../backend/routes.php?page=dashboard");
             exit;
         } else {
             $error = "Forkert adgangskode.";
@@ -83,7 +84,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <button type="submit" class="btn btn-primary w-100">Log ind</button>
     </form>
     <div class="text-center mt-3">
-        <a href="index.php" class="text-light">← Tilbage til forsiden</a>
+        <a href="/backend/routes.php?page=index" class="text-light">← Tilbage til forsiden</a>
     </div>
 </div>
 </body>

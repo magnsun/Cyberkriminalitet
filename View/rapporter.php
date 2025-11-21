@@ -1,7 +1,8 @@
 <?php
 global $conn;
-session_start();
-require_once "db_connect.php";
+
+define('BASE_PATH', dirname(__DIR__));
+require_once BASE_PATH . '/backend/db_connect.php';
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
@@ -107,17 +108,17 @@ if ($to) {
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark no-print">
     <div class="container-fluid">
-        <a class="navbar-brand" href="index.php">🛡️ CyberMonitor</a>
+        <a class="navbar-brand" href="/backend/routes.php?page=index">🛡️ CyberMonitor</a>
         <div class="collapse navbar-collapse">
             <ul class="navbar-nav me-auto">
-                <li class="nav-item"><a class="nav-link" href="dashboard.php">Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link" href="monitoring.php">Overvågning</a></li>
-                <li class="nav-item"><a class="nav-link" href="haendelser.php">Hændelser</a></li>
-                <li class="nav-item"><a class="nav-link" href="tiltag.php">Tiltag</a></li>
-                <li class="nav-item"><a class="nav-link active" href="rapporter.php">Rapporter</a></li>
+                <li class="nav-item"><a class="nav-link" href="/backend/routes.php?page=dashboard">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="/backend/routes.php?page=monitoring">Overvågning</a></li>
+                <li class="nav-item"><a class="nav-link" href="/backend/routes.php?page=haendelser">Hændelser</a></li>
+                <li class="nav-item"><a class="nav-link" href="/backend/routes.php?page=tiltag">Tiltag</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/backend/routes.php?page=rapporter">Rapporter</a></li>
             </ul>
             <span class="me-3">👤 <?= $_SESSION['username'] ?></span>
-            <a href="logout.php" class="btn btn-outline-light btn-sm">Log ud</a>
+            <a href="/backend/routes.php?page=logout" class="btn btn-outline-light btn-sm">Log ud</a>
         </div>
     </div>
 </nav>

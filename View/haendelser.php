@@ -1,7 +1,8 @@
 <?php
 global $conn;
-session_start();
-require_once "db_connect.php";
+
+define('BASE_PATH', dirname(__DIR__));
+require_once BASE_PATH . '/backend/db_connect.php';
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
@@ -33,21 +34,21 @@ try {
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="index.php">🛡️ CyberMonitor</a>
+        <a class="navbar-brand" href="/backend/routes.php?page=index">🛡️ CyberMonitor</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item"><a class="nav-link" href="dashboard.php">Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link" href="monitoring.php">Overvågning</a></li>
-                <li class="nav-item"><a class="nav-link active" href="haendelser.php">Hændelser</a></li>
-                <li class="nav-item"><a class="nav-link" href="tiltag.php">Tiltag</a></li>
-                <li class="nav-item"><a class="nav-link" href="rapporter.php">Rapporter</a></li>
+                <li class="nav-item"><a class="nav-link" href="/backend/routes.php?page=dashboard">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="/backend/routes.php?page=monitoring">Overvågning</a></li>
+                <li class="nav-item"><a class="nav-link active" href="/backend/routes.php?page=haendelser">Hændelser</a></li>
+                <li class="nav-item"><a class="nav-link" href="/backend/routes.php?page=tiltag">Tiltag</a></li>
+                <li class="nav-item"><a class="nav-link" href="/backend/routes.php?page=rapporter">Rapporter</a></li>
             </ul>
             <div class="d-flex align-items-center">
                 <span class="me-3">👤 <?= htmlspecialchars($_SESSION['username']) ?></span>
-                <a href="logout.php" class="btn btn-outline-light btn-sm">Log ud</a>
+                <a href="/backend/routes.php?page=logout" class="btn btn-outline-light btn-sm">Log ud</a>
             </div>
         </div>
     </div>

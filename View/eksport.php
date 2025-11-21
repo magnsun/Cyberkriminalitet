@@ -1,7 +1,8 @@
 <?php
 global $conn;
 session_start();
-require_once "db_connect.php";
+define('BASE_PATH', dirname(__DIR__));
+require_once BASE_PATH . '/backend/db_connect.php';
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");

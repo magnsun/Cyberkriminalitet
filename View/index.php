@@ -1,17 +1,11 @@
 <?php
-// Database connection
-try{
-    $pdo = new PDO('mysql:host=localhost;dbname=cyberkriminalitet', 'root', '');
-} catch (PDOException $e) {
-    echo 'Connection failed: ' . $e->getMessage();
-    exit;
-}
 
-session_start();
+define('BASE_PATH', dirname(__DIR__));
+require_once BASE_PATH . '/backend/db_connect.php';
 
 // Hvis brugeren allerede er logget ind, send videre til dashboard
 if (isset($_SESSION['user_id'])) {
-    header("Location: dashboard.php");
+    header("Location: ../backend/routes.php?page=dashboard");
     exit;
 }
 ?>
@@ -59,7 +53,7 @@ if (isset($_SESSION['user_id'])) {
     <div class="container-fluid">
         <a class="navbar-brand" href="#">🛡️ CyberMonitor</a>
         <div class="d-flex">
-            <a href="login.php" class="btn btn-outline-light">Log ind</a>
+            <a href="/backend/routes.php?page=login" class="btn btn-outline-light">Log ind</a>
         </div>
     </div>
 </nav>
