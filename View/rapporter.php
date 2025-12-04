@@ -15,34 +15,6 @@ $open_incidents = $conn->query("SELECT COUNT(*) FROM incidents WHERE status != '
 $total_alerts = $conn->query("SELECT COUNT(*) FROM alerts")->fetchColumn();
 $total_indicators = $conn->query("SELECT COUNT(*) FROM indicators")->fetchColumn();
 
-// Seneste 10 incidents
-$incidents = $conn->query("
-    SELECT id, title, severity, status, created_at
-    FROM incidents
-    ORDER BY created_at DESC
-    LIMIT 10
-")->fetchAll(PDO::FETCH_ASSOC);
-
-// Seneste 10 alerts
-$alerts = $conn->query("
-    SELECT a.*, i.title AS incident_title
-    FROM alerts a
-    LEFT JOIN incidents i ON a.incident_id = i.id
-    ORDER BY a.created_at DESC
-    LIMIT 10
-")->fetchAll(PDO::FETCH_ASSOC);
-
-// Seneste 10 tiltag (audit logs)
-$tiltag = $conn->query("
-    SELECT a.*, u.username, i.title AS incident_title
-    FROM audit_logs a
-    LEFT JOIN users u ON a.user_id = u.id
-    LEFT JOIN incidents i ON a.record_id = i.id
-    WHERE action = 'NOTE'
-    ORDER BY a.created_at DESC
-    LIMIT 10
-")->fetchAll(PDO::FETCH_ASSOC);
-
 $from = $_GET['from'] ?? null;
 $to = $_GET['to'] ?? null;
 
@@ -54,35 +26,65 @@ $params_inc = [];
 $params_alerts = [];
 $params_tiltag = [];
 
+$search = $_GET['search'] ?? null;
+
+if ($search) {
+    $like = "%$search%";
+
+    // Incidents søgning
+    $where_inc .= " AND (incidents.title LIKE ? OR incidents.status LIKE ? OR incidents.severity LIKE ?) ";
+    array_push($params_inc, $like, $like, $like);
+
+    // Alerts søgning
+    $where_alerts .= " AND (a.rule_name LIKE ? OR a.message LIKE ? OR a.severity LIKE ?) ";
+    array_push($params_alerts, $like, $like, $like);
+
+    // Tiltag søgning
+    $where_tiltag .= " AND (a.changed LIKE ? OR u.username LIKE ? OR i.title LIKE ?) ";
+    array_push($params_tiltag, $like, $like, $like);
+}
+
+
 // INCIDENTS
-if ($from) {
-    $where_inc .= " AND incidents.created_at >= ? ";
-    $params_inc[] = $from . " 00:00:00";
-}
-if ($to) {
-    $where_inc .= " AND incidents.created_at <= ? ";
-    $params_inc[] = $to . " 23:59:59";
-}
+$sql_inc = "
+    SELECT id, title, severity, status, created_at
+    FROM incidents
+    WHERE 1=1 $where_inc
+    ORDER BY created_at DESC
+    LIMIT 100
+";
+$stmt_inc = $conn->prepare($sql_inc);
+$stmt_inc->execute($params_inc);
+$incidents = $stmt_inc->fetchAll(PDO::FETCH_ASSOC);
+
 
 // ALERTS
-if ($from) {
-    $where_alerts .= " AND a.created_at >= ? ";
-    $params_alerts[] = $from . " 00:00:00";
-}
-if ($to) {
-    $where_alerts .= " AND a.created_at <= ? ";
-    $params_alerts[] = $to . " 23:59:59";
-}
+$sql_alerts = "
+    SELECT a.*, i.title AS incident_title
+    FROM alerts a
+    LEFT JOIN incidents i ON a.incident_id = i.id
+    WHERE 1=1 $where_alerts
+    ORDER BY a.created_at DESC
+    LIMIT 100
+";
+$stmt_alerts = $conn->prepare($sql_alerts);
+$stmt_alerts->execute($params_alerts);
+$alerts = $stmt_alerts->fetchAll(PDO::FETCH_ASSOC);
+
 
 // TILTAG (audit_logs)
-if ($from) {
-    $where_tiltag .= " AND a.created_at >= ? ";
-    $params_tiltag[] = $from . " 00:00:00";
-}
-if ($to) {
-    $where_tiltag .= " AND a.created_at <= ? ";
-    $params_tiltag[] = $to . " 23:59:59";
-}
+$sql_tiltag = "
+    SELECT a.*, u.username, i.title AS incident_title
+    FROM audit_logs a
+    LEFT JOIN users u ON a.user_id = u.id
+    LEFT JOIN incidents i ON a.record_id = i.id
+    WHERE action = 'NOTE' $where_tiltag
+    ORDER BY a.created_at DESC
+    LIMIT 100
+";
+$stmt_tiltag = $conn->prepare($sql_tiltag);
+$stmt_tiltag->execute($params_tiltag);
+$tiltag = $stmt_tiltag->fetchAll(PDO::FETCH_ASSOC);
 
 
 ?>
@@ -130,7 +132,8 @@ if ($to) {
         <button onclick="window.print()" class="btn btn-light no-print">🖨 Print / Gem som PDF</button>
     </div>
 
-    <form method="GET" class="card p-3 mb-4 no-print">
+    <form method="GET" action="/backend/routes.php" class="card p-3 mb-4 no-print">
+        <input type="hidden" name="page" value="rapporter">
         <h5>📅 Filtrer på dato</h5>
         <div class="row mt-2">
             <div class="col-md-4">
@@ -254,7 +257,8 @@ if ($to) {
     </div>
     <div class="card p-3 no-print mb-4">
         <h5>📤 Eksportér Data</h5>
-        <form method="GET" action="eksport.php" class="row g-3 mt-2">
+        <form method="GET" action="/backend/routes.php" class="row g-3 mt-2">
+            <input type="hidden" name="page" value="eksport">
 
             <div class="col-md-4">
                 <label class="form-label">Fra dato</label>
