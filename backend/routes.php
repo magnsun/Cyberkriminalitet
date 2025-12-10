@@ -46,6 +46,9 @@ switch ($page) {
         require $viewPath . 'index.php';
         break;
 
+    case 'access_denied':
+        require $viewPath . 'access_denied.php';
+        break;
 
     default:
         http_response_code(404);

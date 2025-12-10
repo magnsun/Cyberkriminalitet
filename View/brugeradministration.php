@@ -4,8 +4,13 @@ global $conn;
 define('BASE_PATH', dirname(__DIR__));
 require_once BASE_PATH . '/backend/db_connect.php';
 
-if (!isset($_SESSION["user_id"]) || $_SESSION["role"] !== "admin") {
-    header("Location: dashboard.php?error=access_denied");
+if (!isset($_SESSION['user_id'])) {
+    header("Location: ../backend/routes.php?page=login");
+    exit;
+}
+
+if ($_SESSION['role'] !== 'admin') {
+    header("Location: ../backend/routes.php?page=access_denied");
     exit;
 }
 
