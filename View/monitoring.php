@@ -5,14 +5,27 @@ global $conn;
 define('BASE_PATH', dirname(__DIR__));
 require_once BASE_PATH . '/backend/db_connect.php';
 
+$period = $_GET['period'] ?? '7d';
+
+$periodMap = [
+        '7d'  => '7 DAY',
+        '1m'  => '1 MONTH',
+        '3m'  => '3 MONTH',
+        '6m'  => '6 MONTH',
+        '1y'  => '1 YEAR'
+];
+
+$sqlInterval = $periodMap[$period] ?? '7 DAY';
+
 // Statistik: antal incidents pr. dag (seneste 7 dage)
 $stmt_chart = $conn->query("
   SELECT DATE(created_at) AS dato, COUNT(*) AS antal
   FROM incidents
-  WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+  WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL $sqlInterval)
   GROUP BY DATE(created_at)
   ORDER BY dato ASC
 ");
+
 $chartData = $stmt_chart->fetchAll(PDO::FETCH_ASSOC);
 
 // Lav arrays til JavaScript
@@ -22,11 +35,12 @@ foreach ($chartData as $row) {
     $labels[] = date("d.m", strtotime($row['dato']));
     $values[] = $row['antal'];
 }
+
 // Statistik: gennemsnitlig threat score pr. dag (seneste 7 dage)
 $stmt_score = $conn->query("
   SELECT DATE(last_seen) AS dato, ROUND(AVG(threat_score), 1) AS avg_score
   FROM indicators
-  WHERE last_seen >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+  WHERE last_seen >= DATE_SUB(CURDATE(), INTERVAL $sqlInterval)
   GROUP BY DATE(last_seen)
   ORDER BY dato ASC
 ");
@@ -146,9 +160,22 @@ try {
             </div>
         </div>
     </div>
-
     <div class="card p-3 mb-4">
-        <h5>📊 Incident-aktivitet (seneste 7 dage)</h5>
+        <form method="get" class="d-flex gap-2 align-items-center">
+            <input type="hidden" name="page" value="monitoring">
+            <strong>Vis periode:</strong>
+
+            <select name="period" class="form-select w-auto" onchange="this.form.submit()">
+                <option value="7d" <?= $period=='7d'?'selected':'' ?>>7 dage</option>
+                <option value="1m" <?= $period=='1m'?'selected':'' ?>>1 måned</option>
+                <option value="3m" <?= $period=='3m'?'selected':'' ?>>3 måneder</option>
+                <option value="6m" <?= $period=='6m'?'selected':'' ?>>6 måneder</option>
+                <option value="1y" <?= $period=='1y'?'selected':'' ?>>1 år</option>
+            </select>
+        </form>
+    </div>
+    <div class="card p-3 mb-4">
+        <h5>📊 Incident-aktivitet (<?= htmlspecialchars($period) ?>)</h5>
         <canvas id="incidentChart" height="100"></canvas>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -183,7 +210,7 @@ try {
         });
     </script>
     <div class="card p-3 mb-4">
-        <h5>🔥 Gennemsnitlig trussels-score (seneste 7 dage)</h5>
+        <h5>🔥 Gennemsnitlig trussels-score (<?= htmlspecialchars($period) ?>)</h5>
         <canvas id="threatChart" height="100"></canvas>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
